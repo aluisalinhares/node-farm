@@ -1,16 +1,15 @@
 const fs = require("fs");
 const http = require("http");
 const url = require("url");
+const slugify = require("slugify");
 
 const replaceTemplate = require('./modules/replaceTemplate')
 
 fs.readFile("./txt/start.txt", "utf-8", (err, data1) => {
   fs.readFile(`./txt/${data1}.txt`, "utf-8", (err, data2) => {
-    console.log(data2);
   });
 });
 
-console.log("reading file");
 
 ////////////////////////////////
 //SERVER
@@ -29,6 +28,8 @@ const tempProduct = fs.readFileSync(
 
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
 const dataObj = JSON.parse(data);
+const slugs = dataObj.map((el) => slugify(el.productName, { lower: true }));
+console.log(slugs);
 
 const server = http.createServer(function (req, res) {
   const { query, pathname } = url.parse(req.url, true);
@@ -40,7 +41,6 @@ const server = http.createServer(function (req, res) {
     const cardsHTML = dataObj.map((el) => replaceTemplate(tempCard, el)).join();
 
     const output = tempOverview.replace("{%PRODUCT_CARDS%}", cardsHTML);
-    console.log(cardsHTML);
     res.end(output);
 
     //Product page
